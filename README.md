@@ -38,9 +38,9 @@ Check one image annotation(label) by HSV
 ```
 cd gen_semantic_data/
 # for real
-python3 hsv_gen_label.py cube_shadow.png
+python3 hsv_gen_label.py --prefix=cube_shadow
 # for simulator
-python3 hsv_gen_label.py sim_cube_2.png
+python3 hsv_gen_label.py --prefix=sim_cube_2
 ```
 
 Check one image annotation (label)
@@ -65,10 +65,9 @@ python3 generate_img.py
 Visiualize the batch image and annotation (label)
 ```
 python3 check_batch_img_label_visualize.py \
- --images="../data/dataset1/train/" \
- --annotations="../data/dataset1/trainannot/" \
+ --images="../data/Redcube/train/" \
+ --annotations="../data/Redcube/trainannot/" \
  --n_classes=2 
-
 ```
 
 
@@ -104,7 +103,7 @@ Predict batch image
 ```shell
 python3  predict.py \
  --save_weights_path=weights/ex1 \
- --epoch_number=2 \
+ --epoch_number=3 \
  --test_images="data/Redcube/test/" \
  --output_path="data/Redcube/test_predictions/" \
  --n_classes=2 \

@@ -5,6 +5,12 @@ python3 hsv_gen_label.py sim_cube_2.png
 
 import cv2
 import numpy as np
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--prefix", type = str , default = "")
+args = parser.parse_args()
+
 
 cap = cv2.VideoCapture(0)
 
@@ -101,7 +107,7 @@ while(1):
     lower_hsv = np.array([h,s,v])
     upper_hsv = np.array([h_u,s_u,v_u])
 
-    img_prefix = 'sim_cube_2' #'cube_shadow'
+    img_prefix = args.prefix #'sim_cube_2' #'cube_shadow'
     img_suffix = '.png'
     frame1  = cv2.imread(img_prefix+img_suffix) # real
  
