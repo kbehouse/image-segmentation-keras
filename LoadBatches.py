@@ -5,7 +5,7 @@ import glob
 import itertools
 
 
-def getImageArr( path , width , height , imgNorm="sub_mean" , odering='channels_first' ):
+def getImageArr( path , width , height , imgNorm="sub_mean" , ordering='channels_first' ):
 
 	try:
 		img = cv2.imread(path, 1)
@@ -23,13 +23,15 @@ def getImageArr( path , width , height , imgNorm="sub_mean" , odering='channels_
 			img = img.astype(np.float32)
 			img = img/255.0
 
-		if odering == 'channels_first':
+		if ordering == 'channels_first':
 			img = np.rollaxis(img, 2, 0)
+			
+		# print('img -> ', img.shape)
 		return img
-	except Exception, e:
-		print path , e
+	except Exception as e:
+		print(path , e)
 		img = np.zeros((  height , width  , 3 ))
-		if odering == 'channels_first':
+		if ordering == 'channels_first':
 			img = np.rollaxis(img, 2, 0)
 		return img
 
@@ -48,8 +50,8 @@ def getSegmentationArr( path , nClasses ,  width , height  ):
 		for c in range(nClasses):
 			seg_labels[: , : , c ] = (img == c ).astype(int)
 
-	except Exception, e:
-		print e
+	except Exception as e:
+		print(e)
 		
 	seg_labels = np.reshape(seg_labels, ( width*height , nClasses ))
 	return seg_labels
@@ -70,14 +72,14 @@ def imageSegmentationGenerator( images_path , segs_path ,  batch_size,  n_classe
 	for im , seg in zip(images,segmentations):
 		assert(  im.split('/')[-1].split(".")[0] ==  seg.split('/')[-1].split(".")[0] )
 
-	zipped = itertools.cycle( zip(images,segmentations) )
+	zipped = itertools.cycle( list(zip(images,segmentations)) )
 
 	while True:
 		X = []
 		Y = []
 		for _ in range( batch_size) :
-			im , seg = zipped.next()
-			X.append( getImageArr(im , input_width , input_height )  )
+			im , seg = next(zipped)
+			X.append( getImageArr(im , input_width , input_height, ordering="None"))# ordering="channels_first" )  )
 			Y.append( getSegmentationArr( seg , n_classes , output_width , output_height )  )
 
 		yield np.array(X) , np.array(Y)

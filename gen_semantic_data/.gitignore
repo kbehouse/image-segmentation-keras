@@ -1,0 +1,13 @@
+red_cube*/
+
+trainannot/
+train/
+testannot/
+test/
+val/
+valannot/
+
+
+*_label.png
+*_label.png_x255.jpg
+*_label.png.txt

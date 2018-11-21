@@ -1,5 +1,8 @@
 import argparse
-import Models , LoadBatches
+import LoadBatches
+
+import Models
+from Models import VGGUnet, VGGSegnet, FCN8, FCN32
 
 
 
@@ -40,6 +43,8 @@ load_weights = args.load_weights
 optimizer_name = args.optimizer_name
 model_name = args.model_name
 
+
+print('validate = ', validate)
 if validate:
 	val_images_path = args.val_images
 	val_segs_path = args.val_annotations
@@ -58,7 +63,7 @@ if len( load_weights ) > 0:
 	m.load_weights(load_weights)
 
 
-print "Model output shape" ,  m.output_shape
+print("Model output shape" ,  m.output_shape)
 
 output_height = m.outputHeight
 output_width = m.outputWidth
@@ -69,13 +74,22 @@ G  = LoadBatches.imageSegmentationGenerator( train_images_path , train_segs_path
 if validate:
 	G2  = LoadBatches.imageSegmentationGenerator( val_images_path , val_segs_path ,  val_batch_size,  n_classes , input_height , input_width , output_height , output_width   )
 
+
+# recreate weights path
+import os
+if os.path.exists('weights'):
+	import shutil
+	shutil.rmtree('weights')
+os.makedirs('weights')
+
+print('Run epochs = ', epochs)
 if not validate:
-	for ep in range( epochs ):
+	for ep in range( 1, epochs+1 ):
 		m.fit_generator( G , 512  , epochs=1 )
 		m.save_weights( save_weights_path + "." + str( ep ) )
 		m.save( save_weights_path + ".model." + str( ep ) )
 else:
-	for ep in range( epochs ):
+	for ep in range( 1, epochs+1 ):
 		m.fit_generator( G , 512  , validation_data=G2 , validation_steps=200 ,  epochs=1 )
 		m.save_weights( save_weights_path + "." + str( ep )  )
 		m.save( save_weights_path + ".model." + str( ep ) )

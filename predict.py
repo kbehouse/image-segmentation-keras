@@ -1,11 +1,24 @@
 import argparse
-import Models , LoadBatches
+import LoadBatches
+
+import Models
+from Models import VGGUnet, VGGSegnet, FCN8, FCN32
+
 from keras.models import load_model
 import glob
 import cv2
 import numpy as np
 import random
-
+import os
+'''
+python3  predict.py \
+ --save_weights_path=weights/ex1 \
+ --epoch_number=3 \
+ --test_images="data/Redcube/test/" \
+ --output_path="data/Redcube/test_predictions/" \
+ --n_classes=2 \
+ --model_name="vgg_segnet" 
+'''
 parser = argparse.ArgumentParser()
 parser.add_argument("--save_weights_path", type = str  )
 parser.add_argument("--epoch_number", type = int, default = 5 )
@@ -24,6 +37,12 @@ images_path = args.test_images
 input_width =  args.input_width
 input_height = args.input_height
 epoch_number = args.epoch_number
+
+# recreate output_path
+if os.path.exists(args.output_path):
+	import shutil
+	shutil.rmtree(args.output_path)
+os.makedirs(args.output_path)
 
 modelFns = { 'vgg_segnet':Models.VGGSegnet.VGGSegnet , 'vgg_unet':Models.VGGUnet.VGGUnet , 'vgg_unet2':Models.VGGUnet.VGGUnet2 , 'fcn8':Models.FCN8.FCN8 , 'fcn32':Models.FCN32.FCN32   }
 modelFN = modelFns[ model_name ]
@@ -45,7 +64,7 @@ colors = [  ( random.randint(0,255),random.randint(0,255),random.randint(0,255) 
 
 for imgName in images:
 	outName = imgName.replace( images_path ,  args.output_path )
-	X = LoadBatches.getImageArr(imgName , args.input_width  , args.input_height  )
+	X = LoadBatches.getImageArr(imgName , args.input_width  , args.input_height , ordering='None' )
 	pr = m.predict( np.array([X]) )[0]
 	pr = pr.reshape(( output_height ,  output_width , n_classes ) ).argmax( axis=2 )
 	seg_img = np.zeros( ( output_height , output_width , 3  ) )
@@ -54,5 +73,7 @@ for imgName in images:
 		seg_img[:,:,1] += ((pr[:,: ] == c )*( colors[c][1] )).astype('uint8')
 		seg_img[:,:,2] += ((pr[:,: ] == c )*( colors[c][2] )).astype('uint8')
 	seg_img = cv2.resize(seg_img  , (input_width , input_height ))
+
+	print(outName)
 	cv2.imwrite(  outName , seg_img )
 
