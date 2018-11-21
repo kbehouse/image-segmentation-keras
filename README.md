@@ -1,6 +1,8 @@
 # Image Segmentation Keras
 
-Fork from https://github.com/kbehouse/image-segmentation-keras
+Fork from https://github.com/divamgupta/image-segmentation-keras
+
+This repo
 * Switch VGGsegnet to Tensorflow version
 * Switch VGGsegnet to channel 'Last' version
 * Switch to Python3 
@@ -15,7 +17,7 @@ Fork from https://github.com/kbehouse/image-segmentation-keras
 ## Models 
 
 * VGG Segnet Tensorflow Ready
-* Other from original fork support Theonao
+* Other from original fork support Theano
 
 ## Getting Started
 
@@ -29,7 +31,7 @@ Set Keras to Tensorflow for VGGSegnet
 
 # Preparing the data for training
 
-## Get image annotation(label)
+## Get image annotation (label)
 
 Check one image annotation(label) by HSV
 
@@ -41,7 +43,7 @@ python3 hsv_gen_label.py cube_shadow.png
 python3 hsv_gen_label.py sim_cube_2.png
 ```
 
-Check one image annotation(label)
+Check one image annotation (label)
 
 ```
 cd gen_semantic_data/
@@ -60,7 +62,7 @@ python3 check_img_label_to_digit.py --image=sim_cube_2_label.png
 python3 generate_img.py
 ```
 
-Visiualize the batch image and annotation(label)
+Visiualize the batch image and annotation (label)
 ```
 python3 check_batch_img_label_visualize.py \
  --images="../data/dataset1/train/" \
