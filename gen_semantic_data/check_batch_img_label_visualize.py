@@ -28,7 +28,7 @@ def imageSegmentationGenerator( images_path , segs_path ,  n_classes ):
 	f = open("r.txt", "w")
 
 	for im_fn , seg_fn in zip(images,segmentations):
-		print(f'im_fn = {im_fn}, seg_fn={seg_fn}')
+		# print(f'im_fn = {im_fn}, seg_fn={seg_fn}')
 		print('  im_fn.split(/)[-1] =', im_fn.split('/')[-1] )
 		print('  seg_fn.split(/)[-1] =', seg_fn.split('/')[-1] )
 		assert(  im_fn.split('/')[-1] ==  seg_fn.split('/')[-1] )

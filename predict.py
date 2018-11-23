@@ -60,7 +60,8 @@ output_width = m.outputWidth
 images = glob.glob( images_path + "*.jpg"  ) + glob.glob( images_path + "*.png"  ) +  glob.glob( images_path + "*.jpeg"  )
 images.sort()
 
-colors = [  ( random.randint(0,255),random.randint(0,255),random.randint(0,255)   ) for _ in range(n_classes)  ]
+# colors = [  ( random.randint(0,255),random.randint(0,255),random.randint(0,255)   ) for _ in range(n_classes)  ]
+colors = [(0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255)]
 
 for imgName in images:
 	outName = imgName.replace( images_path ,  args.output_path )

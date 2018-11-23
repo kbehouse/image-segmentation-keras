@@ -11,6 +11,7 @@ import os
 file_path = os.path.dirname( os.path.abspath(__file__) )
 VGG_16_WEIGHTS_URL = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.1/vgg16_weights_tf_dim_ordering_tf_kernels.h5'
 
+
 def VGGSegnet( n_classes , input_height=224, input_width=224 , vgg_level=3): #input_height=416, input_width=608 , vgg_level=3):
 
 	img_input = Input(shape=(input_height,input_width, 3))
