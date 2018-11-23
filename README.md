@@ -73,13 +73,17 @@ python3 generate_img.py
 ```
 
 Visiualize the batch image and annotation (label)
-```
+```bash
 python3 check_batch_img_label_visualize.py \
  --images="../data/Redcube/train/" \
  --annotations="../data/Redcube/trainannot/" \
  --n_classes=2 
+ # 3 object task
+ python3 check_batch_img_label_visualize.py \
+ --images="../data/3obj/train/" \
+ --annotations="../data/3obj/trainannot/" \
+ --n_classes=4 
 ```
-
 
 ## Downloading the Pretrained VGG Weights
 
@@ -105,6 +109,16 @@ python3  train.py \
  --n_classes=2 \
  --model_name="vgg_segnet" \
  --epochs=3 
+ # 3 object task
+python3  train.py \
+ --save_weights_path=weights/ex1 \
+ --train_images="data/3obj/train/" \
+ --train_annotations="data/3obj/trainannot/" \
+ --val_images="data/3obj/val/" \
+ --val_annotations="data/3obj/valannot/" \
+ --n_classes=4 \
+ --model_name="vgg_segnet" \
+ --epochs=5 
 ```
 ## Getting the predictions
 
@@ -117,6 +131,14 @@ python3  predict.py \
  --test_images="data/Redcube/test/" \
  --output_path="data/Redcube/test_predictions/" \
  --n_classes=2 \
+ --model_name="vgg_segnet" 
+ # 3 object task
+python3  predict.py \
+ --save_weights_path=weights/ex1 \
+ --epoch_number=5 \
+ --test_images="data/3obj/test/" \
+ --output_path="data/3obj/test_predictions/" \
+ --n_classes=4 \
  --model_name="vgg_segnet" 
 ```
 

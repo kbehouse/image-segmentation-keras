@@ -22,7 +22,7 @@ class AugmentationImage:
             fu_label_path = 'real_fu_label.png',
             iphone_path = 'real_iphone.png',
             iphone_label_path = 'real_iphone_label.png'
-            )
+            ):
         # self.table = cv2.imread(table_path)
         # self.cube = cv2.imread(cube_path)
         # self.table_label = np.zeros(self.table.shape)
@@ -129,10 +129,6 @@ class AugmentationImage:
             for j in range(paste_w - paste_low_w):
                 if sum(obj_label_new[paste_low_h+i, paste_low_w+j]) != 0:
                     self.label[s_min_x+i, s_min_y+j, :] = obj_label_new[paste_low_h+i, paste_low_w+j, :] * label_class;
-        # cv2.imshow('label',self.label*255)
-        # cv2.waitKey(100)
-
-        # self.label[s_min_x:s_max_x, s_min_y:s_max_y, :] = obj_label_new[paste_low_h:paste_h, paste_low_w:paste_w, :] * label_class;
 
         if(label_class==CLASS_NUM-1):
             if self.state.shape[0]!=IMG_W_H or self.state.shape[1]!=IMG_W_H:
@@ -273,7 +269,7 @@ class AugmentationImage:
 
 # AugmentationImage().run_gen(img_dir=target_dir + '/red_cube2', label_dir=target_dir + '/red_cube_label')
 
-target_dir  ='../data/Redcube'
+target_dir  ='../data/3obj'
 # train 0~199
 # aug = AugmentationImage(table_path = 'table.png', cube_path = 'cube_shadow.png', cube_label_path = 'cube_shadow_label.png')
 aug = AugmentationImage(table_path = 'real_table.png', 
