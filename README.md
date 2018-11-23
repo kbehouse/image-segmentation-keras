@@ -31,6 +31,16 @@ Set Keras to Tensorflow for VGGSegnet
 
 # Preparing the data for training
 
+## Move object image and object label to dst path
+```bash
+# go to gen_semantic_data folder
+cd gen_semantic_data/
+# copy data from 3obj_task/label
+cp 3obj_task/label/* .
+# copy data from 3obj_task/object
+cp 3obj_task/object/* .
+```
+
 ## Get image annotation (label)
 
 Check one image annotation(label) by HSV
