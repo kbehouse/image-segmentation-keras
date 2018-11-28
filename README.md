@@ -160,6 +160,7 @@ python3  predict_onepic.py \
 # visualize = 1 means visualize
 python3 accuracy.py \
  --dst=test_predictions/ \
+ --label=testannot/ \
  --path=../data/3obj/ \
  --number=200 \
  --visualize=0
