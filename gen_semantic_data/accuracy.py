@@ -10,6 +10,7 @@ color_list = [[0, 0, 0], [255, 0, 0], [0, 255, 0], [0, 0, 255]]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dst", type = str , default = "test_predictions/")
+parser.add_argument("--label", type = str , default = "testannot/")
 parser.add_argument("--path", type = str , default = "../data/3obj/")
 parser.add_argument("--number", type = int , default = 200)
 parser.add_argument("--visualize", type = int , default = 1)
@@ -27,20 +28,21 @@ def keyBoardINT(signum, frame):
 class Accuracy(object):
 
     
-    def __init__(self, path, dst):
+    def __init__(self, path, dst_name, label_name):
         self.path = path
-        self.dst = dst
+        self.dst_name = dst_name
+        self.label_name = label_name
         self.img_id = 0
         self.accuracy_sum = 0
 
-    def loadPicture(self, path, dst):
-        self.label = cv2.imread(path+'testannot/'+str(self.img_id)+'.png')
-        self.predict = cv2.imread(path+dst+str(self.img_id)+'.png')
+    def loadPicture(self, path, dst_name, label_name):
+        self.label = cv2.imread(path+label_name+str(self.img_id)+'.png')
+        self.predict = cv2.imread(path+dst_name+str(self.img_id)+'.png')
 
     def accuracyCalculate(self, size, label, color):
         for i in range(size):
             error = 0
-            self.loadPicture(self.path, self.dst)
+            self.loadPicture(self.path, self.dst_name, self.label_name)
             if(self.label.shape[0] != self.predict.shape[0]
                     or self.label.shape[1] != self.predict.shape[1]):
                 self.label = self.resize(self.label, self.predict)
@@ -77,5 +79,5 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, keyBoardINT)  
     signal.signal(signal.SIGTERM, keyBoardINT)  
-    accuracy = Accuracy(args.path, args.dst)
+    accuracy = Accuracy(args.path, args.dst, args.label)
     accuracy.accuracyCalculate(IMG_NUM, label_list, color_list)
