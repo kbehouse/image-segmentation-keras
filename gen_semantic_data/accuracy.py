@@ -4,7 +4,6 @@ import argparse
 import os
 import signal
 
-IMG_NUM = 200
 
 label_list = [[0, 0, 0], [1, 1, 1], [2, 2, 2], [3, 3, 3]]
 color_list = [[0, 0, 0], [255, 0, 0], [0, 255, 0], [0, 0, 255]]
@@ -12,7 +11,12 @@ color_list = [[0, 0, 0], [255, 0, 0], [0, 255, 0], [0, 0, 255]]
 parser = argparse.ArgumentParser()
 parser.add_argument("--dst", type = str , default = "test_predictions/")
 parser.add_argument("--path", type = str , default = "../data/3obj/")
+parser.add_argument("--number", type = int , default = 200)
+parser.add_argument("--visualize", type = int , default = 1)
+
+
 args = parser.parse_args()
+IMG_NUM = args.number
 
 
 def keyBoardINT(signum, frame):  
@@ -27,6 +31,7 @@ class Accuracy(object):
         self.path = path
         self.dst = dst
         self.img_id = 0
+        self.accuracy_sum = 0
 
     def loadPicture(self, path, dst):
         self.label = cv2.imread(path+'testannot/'+str(self.img_id)+'.png')
@@ -54,10 +59,15 @@ class Accuracy(object):
             
             self.img_id += 1
             print('\rimg_id: '+str(self.img_id)+'\t accuracy:'+'%.2f' %(100 - (error/(self.error_map.shape[0]*self.error_map.shape[1]))*100)+'%', end='')
-            cv2.imshow('error_map', self.error_map)
-            cv2.imshow('predict', self.predict)
-            cv2.imshow('label', self.label*60)
-            cv2.waitKey()
+            self.accuracy_sum += 100 - (error/(self.error_map.shape[0]*self.error_map.shape[1]))*100;
+            if self.img_id == IMG_NUM:
+                print('\naverage accuracy: %.2f' %(self.accuracy_sum/self.img_id) +'%')
+            
+            if args.visualize:
+                cv2.imshow('error_map', self.error_map)
+                cv2.imshow('predict', self.predict)
+                cv2.imshow('label', self.label*60)
+                cv2.waitKey(0)
 
     def resize(self, src, dst):
         src = cv2.resize(src, (dst.shape[0], dst.shape[1]), interpolation=cv2.INTER_AREA)

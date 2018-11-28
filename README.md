@@ -152,3 +152,15 @@ python3  predict_onepic.py \
  --output="test_annot.png" \
  --n_classes=2
 ```
+
+## Getting the accuracy
+
+```shell
+# visualize = 0 means no visualize
+# visualize = 1 means visualize
+python3 accuracy.py \
+ --dst=test_predictions/ \
+ --path=../data/3obj/ \
+ --number=200 \
+ --visualize=0
+```
