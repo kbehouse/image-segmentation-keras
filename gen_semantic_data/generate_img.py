@@ -1,12 +1,18 @@
+from multiprocessing import Process, Manager
 import cv2
 import numpy as np
+import time
 import os
+import random
+np.random.seed((int)(time.time()))
 
 
-MARGIN = 30
+MARGIN = 0
+MARGIN2 = 200
+MARGIN3 = 100
 IMG_W_H = 256
 CLASS_NUM = 4
-TOTAL_DATA = 800
+TOTAL_DATA = 400
 # because thread bloack the image catch (maybe), so create the shell class 
 class AugmentationImage:
 
@@ -54,14 +60,16 @@ class AugmentationImage:
             ):
         self.table = cv2.imread(table_path)
         self.cube = cv2.imread(cube_path)
-        self.cho = cv2.imread(cho_path)
-        self.fu = cv2.imread(fu_path)
-        self.iphone = cv2.imread(iphone_path)
+        self.cho = cv2.imread(cho_path)[90:310, 90:310]
+        self.fu = cv2.imread(fu_path)[90:310, 90:310]
+        self.iphone = cv2.imread(iphone_path)[80:320, 80:320]
         self.table_label = np.zeros(self.table.shape)
         self.cube_label = cv2.imread(cube_label_path)
-        self.cho_label = cv2.imread(cho_label_path)
-        self.fu_label = cv2.imread(fu_label_path)
-        self.iphone_label = cv2.imread(iphone_label_path)
+        self.cho_label = cv2.imread(cho_label_path)[90:310, 90:310]
+        self.fu_label = cv2.imread(fu_label_path)[90:310, 90:310]
+        self.iphone_label = cv2.imread(iphone_label_path)[80:320, 80:320]
+        # cv2.imshow('snip', self.fu)
+        # cv2.waitKey()
 
     def paste_object(self,
             obj,
@@ -85,13 +93,6 @@ class AugmentationImage:
         obj_h = obj_new.shape[0]
         obj_w = obj_new.shape[1]
         self.state = background.copy()
-        # if(label_class==3):
-            # print("shape0")
-            # print(self.state.shape[0])
-            # print("shape1")
-            # print(self.state.shape[1])
-            # cv2.imshow("windows", self.state)
-            # cv2.waitKey(100)
         if (img_x >= background.shape[0] 
                 or img_y >= background.shape[1]
                 or (img_x+obj_h) < 0 
@@ -218,10 +219,13 @@ class AugmentationImage:
             self.recreate_dir(img_dir)
             self.recreate_dir(label_dir)
         for i in range(s_id, s_id+num):
-            rand_cube_x = np.random.randint(MARGIN, self.table_label.shape[0] -MARGIN) 
-            rand_cube_y = np.random.randint(MARGIN, self.table_label.shape[1] -MARGIN)
-            rotate_deg =  np.random.randint(0, 90)
-            scale = np.random.uniform(0.8,1.2)
+            pid = os.getpid()
+            randst = np.random.mtrand.RandomState(pid+int(time.time()*100000)%100)
+            rand_cube_x = randst.randint(MARGIN, self.table_label.shape[0] -MARGIN3)
+            rand_cube_y = randst.randint(MARGIN, self.table_label.shape[1] -MARGIN3)
+            rotate_deg =  randst.randint(0, 90)
+            scale = randst.uniform(0.8,1.2)
+            # print('x: {x}, y: {y}'.format(x=rand_cube_x, y=rand_cube_y))
             # print('Generate x={:3d},y={:3d}, roate={:2d}, scale={:3.2f} '.format( rand_cube_x, rand_cube_y, rotate_deg, scale) + f', save -> {img_dir}/{i:03d}.png' )
             # print('Generate x={:3d},y={:3d}, roate={:2d}, scale={:3.2f} '.format( rand_cube_x, rand_cube_y, rotate_deg, scale))
             self.paste_object(self.cho,
@@ -234,10 +238,11 @@ class AugmentationImage:
                     scale,
                     label_class=1
             )
-            rand_cube_x = np.random.randint(MARGIN, self.table_label.shape[0] -MARGIN) 
-            rand_cube_y = np.random.randint(MARGIN, self.table_label.shape[1] -MARGIN)
-            rotate_deg =  np.random.randint(0, 90)
-            scale = np.random.uniform(0.8,1.2)
+            randst = np.random.mtrand.RandomState(pid+int(time.time()*100000)%100)
+            rand_cube_x = randst.randint(MARGIN, self.table_label.shape[0] -MARGIN3)
+            rand_cube_y = randst.randint(MARGIN, self.table_label.shape[1] -MARGIN3)
+            rotate_deg =  randst.randint(0, 90)
+            scale = randst.uniform(0.8,1.2)
             self.paste_object(self.fu,
                     self.fu_label,
                     rand_cube_x,
@@ -248,10 +253,11 @@ class AugmentationImage:
                     scale,
                     label_class=2
             )
-            rand_cube_x = np.random.randint(MARGIN, self.table_label.shape[0] -MARGIN) 
-            rand_cube_y = np.random.randint(MARGIN, self.table_label.shape[1] -MARGIN)
-            rotate_deg =  np.random.randint(0, 90)  
-            scale = np.random.uniform(0.8,1.2)
+            randst = np.random.mtrand.RandomState(pid+int(time.time()*100000)%100)
+            rand_cube_x = randst.randint(MARGIN, self.table_label.shape[0] -MARGIN3)
+            rand_cube_y = randst.randint(MARGIN, self.table_label.shape[1] -MARGIN3)
+            rotate_deg =  randst.randint(0, 90)
+            scale = randst.uniform(0.8,1.2)
             self.paste_object(self.iphone,
                     self.iphone_label,
                     rand_cube_x,
@@ -266,92 +272,45 @@ class AugmentationImage:
             print("\rschedule: "+ "%.3f" %((self.img_id/TOTAL_DATA)*100)+"%", end="")
             self.save(img_dir, label_dir, i)
 
+def genData(dst_dir, name, num):
+    aug = AugmentationImage(table_path = 'real_table.png', 
+            # cube_path = 'sim_cube_2.png',
+            # cube_label_path = 'sim_cube_2_label.png',
+            cho_path = 'real_cho.png',
+            cho_label_path = 'real_cho_label.png',
+            fu_path = 'real_fu.png',
+            fu_label_path = 'real_fu_label.png',
+            iphone_path = 'real_iphone.png',
+            iphone_label_path = 'real_iphone_label.png'
+            )
+    aug.run_gen(img_dir=target_dir + '/' + name, label_dir=target_dir + '/' + name + 'annot', num=num)
+
+    # train 200~399
+
+    aug.set_image(table_path = 'sim_table.png',
+            # cube_path = 'sim_cube_2.png',
+            # cube_label_path = 'sim_cube_2_label.png'
+            cho_path = 'sim_cho.png',
+            cho_label_path = 'sim_cho_label.png',
+            fu_path = 'sim_fu.png',
+            fu_label_path = 'sim_fu_label.png',
+            iphone_path = 'sim_iphone.png',
+            iphone_label_path = 'sim_iphone_label.png'
+            )
+    aug.run_gen(img_dir=target_dir + '/' + name, label_dir=target_dir + '/' + name + 'annot', s_id=num, num=num)
 
 # AugmentationImage().run_gen(img_dir=target_dir + '/red_cube2', label_dir=target_dir + '/red_cube_label')
 
+threads = []
+
 target_dir  ='../data/3obj'
-# train 0~199
-# aug = AugmentationImage(table_path = 'table.png', cube_path = 'cube_shadow.png', cube_label_path = 'cube_shadow_label.png')
-aug = AugmentationImage(table_path = 'real_table.png', 
-        # cube_path = 'sim_cube_2.png',
-        # cube_label_path = 'sim_cube_2_label.png',
-        cho_path = 'real_cho.png',
-        cho_label_path = 'real_cho_label.png',
-        fu_path = 'real_fu.png',
-        fu_label_path = 'real_fu_label.png',
-        iphone_path = 'real_iphone.png',
-        iphone_label_path = 'real_iphone_label.png'
-        )
-aug.run_gen(img_dir=target_dir + '/train', label_dir=target_dir + '/trainannot', num=200)
 
-# train 200~399
-# aug.set_image(table_path = 'sim_table.png', cube_path = 'sim_cube_2.png', cube_label_path = 'sim_cube_2_label.png')
-aug.set_image(table_path = 'sim_table.png',
-        # cube_path = 'sim_cube_2.png',
-        # cube_label_path = 'sim_cube_2_label.png'
-        cho_path = 'sim_cho.png',
-        cho_label_path = 'sim_cho_label.png',
-        fu_path = 'sim_fu.png',
-        fu_label_path = 'sim_fu_label.png',
-        iphone_path = 'sim_iphone.png',
-        iphone_label_path = 'sim_iphone_label.png'
-        )
-aug.run_gen(img_dir=target_dir + '/train', label_dir=target_dir + '/trainannot', s_id = 200, num=200)
+threads.append(Process(target=genData, args=(target_dir, 'train', 200)))
+threads.append(Process(target=genData, args=(target_dir, 'test', 100)))
+threads.append(Process(target=genData, args=(target_dir, 'val', 100)))
 
-# test 0~50
-# aug.set_image(table_path = 'sim_table.png', cube_path = 'sim_cube_2.png', cube_label_path = 'sim_cube_2_label.png')
-aug.set_image(table_path = 'sim_table.png', 
-        # cube_path = 'sim_cube_2.png', 
-        # cube_label_path = 'sim_cube_2_label.png'
-        cho_path = 'sim_cho.png',
-        cho_label_path = 'sim_cho_label.png',
-        fu_path = 'sim_fu.png',
-        fu_label_path = 'sim_fu_label.png',
-        iphone_path = 'sim_iphone.png',
-        iphone_label_path = 'sim_iphone_label.png'
-        )
-aug.run_gen(img_dir=target_dir + '/test', label_dir=target_dir + '/testannot', num=100)
+for i in range(len(threads)):
+    threads[i].start()
 
-# test 50~99
-# aug.set_image(table_path = 'table.png', cube_path = 'cube_shadow.png', cube_label_path = 'cube_shadow_label.png')
-aug.set_image(table_path = 'real_table.png', 
-        # cube_path = 'sim_cube_2.png',
-        # cube_label_path = 'sim_cube_2_label.png',
-        cho_path = 'real_cho.png',
-        cho_label_path = 'real_cho_label.png',
-        fu_path = 'real_fu.png',
-        fu_label_path = 'real_fu_label.png',
-        iphone_path = 'real_iphone.png',
-        iphone_label_path = 'real_iphone_label.png'
-        )
-aug.run_gen(img_dir=target_dir + '/test', label_dir=target_dir + '/testannot', s_id = 100, num=100)
-
-# val 0~50
-# aug.set_image(table_path = 'sim_table.png', cube_path = 'sim_cube_2.png', cube_label_path = 'sim_cube_2_label.png')
-aug.set_image(table_path = 'sim_table.png', 
-        # cube_path = 'sim_cube_2.png', 
-        # cube_label_path = 'sim_cube_2_label.png'
-        cho_path = 'sim_cho.png',
-        cho_label_path = 'sim_cho_label.png',
-        fu_path = 'sim_fu.png',
-        fu_label_path = 'sim_fu_label.png',
-        iphone_path = 'sim_iphone.png',
-        iphone_label_path = 'sim_iphone_label.png'
-        )
-aug.run_gen(img_dir=target_dir + '/val', label_dir=target_dir + '/valannot', num=100)
-
-
-# val 50~99
-# aug.set_image(table_path = 'table.png', cube_path = 'cube_shadow.png', cube_label_path = 'cube_shadow_label.png')
-aug.set_image(table_path = 'real_table.png', 
-        # cube_path = 'sim_cube_2.png',
-        # cube_label_path = 'sim_cube_2_label.png',
-        cho_path = 'real_cho.png',
-        cho_label_path = 'real_cho_label.png',
-        fu_path = 'real_fu.png',
-        fu_label_path = 'real_fu_label.png',
-        iphone_path = 'real_iphone.png',
-        iphone_label_path = 'real_iphone_label.png'
-        )
-aug.run_gen(img_dir=target_dir + '/val', label_dir=target_dir + '/valannot', s_id = 100, num=100)
-
+for j in range(len(threads)):
+    threads[i].join()
