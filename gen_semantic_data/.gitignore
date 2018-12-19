@@ -8,4 +8,5 @@ val/
 valannot/
 r.txt
 
-
+*.png
+*.jpg

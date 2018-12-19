@@ -10,8 +10,20 @@ import numpy as np
 import random
 import os
 
+
+
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
+config = tf.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.5
+set_session(tf.Session(config=config))
 '''
 python predict_onepic.py --input=test.png --output=test_label.png
+python predict_onepic.py --input=3obj.png --output=3obj_label.png --want_class=2  
+python predict_onepic.py --input=3obj_93.png --output=3obj_93_label.png --want_class=3  
+# class:1 -> CHO, class:1 -> CHO, class:2 -> fu, class:3 -> iPhone 
+
+python predict_onepic.py --input=test/022.jpg --output=test/022_label.jpg --want_class=1
 '''
 
 
@@ -22,8 +34,10 @@ class SegnetLabel:
 
 		modelFN = Models.VGGSegnet.VGGSegnet
 
-		self.m = modelFN( n_classes , input_height=input_height, input_width=input_width   )
-		self.m.load_weights(  save_weights_path + "." + str(  epoch_number )  )
+		self.m = modelFN( n_classes , input_height=input_height, input_width=input_width , trainning = False  )
+		weight_path = save_weights_path + "." + str(  epoch_number )
+		print('Load Segnet weight_path: ' + weight_path)
+		self.m.load_weights(weight_path )
 		self.m.compile(loss='categorical_crossentropy',
 			optimizer= 'adadelta' ,
 			metrics=['accuracy'])
@@ -31,7 +45,11 @@ class SegnetLabel:
 		self.n_classes = n_classes
 		self.input_height = input_height
 		self.input_width = input_width
+		self.want_class = 1
 
+
+	def set_want_class(self, want_class):
+		self.want_class = want_class 
 
 	def limit_gpu_memory(self):
 		# ---- limit  GPU memory resource-----#
@@ -44,7 +62,14 @@ class SegnetLabel:
 	def predict(self, inName):
 		X = self.getImageArr(inName , self.input_width  , self.input_height , ordering='None' )
 		pr = self.m.predict( np.array([X]) )[0]
+
+		
 		pr = pr.reshape(( self.m.outputHeight ,  self.m.outputWidth , self.n_classes ) ).argmax( axis=2 )
+		# print('pr.shape = ', pr.shape)
+		pr = (pr[:,:] == self.want_class).astype('uint8')
+		# seg_img = np.zeros( ( self.m.outputHeight  , self.m.outputHeight  , 3  ) )
+		# (pr[:,: ] >= 2
+		
 		return pr
 
 	def getImageArr(self, path , width , height , imgNorm="sub_mean" , ordering='channels_first' ):
@@ -79,18 +104,20 @@ class SegnetLabel:
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
-	parser.add_argument("--save_weights_path", type = str, default='weights/ex1'  )
-	parser.add_argument("--epoch_number", type = int, default = 10 )
+	parser.add_argument("--save_weights_path", type = str, default='weights/3obj'  ) #default='weights/ex1'  )
+	parser.add_argument("--epoch_number", type = int, default = 5 )
 	parser.add_argument("--input", type = str , default = "")
 	parser.add_argument("--output", type = str , default = "")
 	parser.add_argument("--input_height", type=int , default = 224  )
 	parser.add_argument("--input_width", type=int , default = 224 )
-	parser.add_argument("--n_classes", type=int , default = 2)
+	parser.add_argument("--n_classes", type=int , default = 4)
+	parser.add_argument("--want_class", type=int , default = 1)
 
 	args = parser.parse_args()
 
 
 	s = SegnetLabel(args.n_classes, args.input_height , args.input_width, args.save_weights_path, args.epoch_number )
+	s.set_want_class(args.want_class)
 	seg_img = s.predict(args.input)
 
 	print('output seg_img.shape = ', seg_img.shape)
